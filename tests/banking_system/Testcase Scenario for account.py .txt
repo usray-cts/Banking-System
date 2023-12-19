@@ -1,0 +1,58 @@
+Here are diverse scenarios that the function should be able to handle:
+
+1. **Creating a new account with a specified account number and initial balance**
+    - Creating an account with account number "123456" and initial balance of 5000
+    - Creating an account with account number "7891011" and initial balance of 0
+
+2. **Creating a new account with a specified account number and no initial balance**
+    - Creating an account with account number "121314" and no specified initial balance
+
+3. **Depositing a positive amount into an account**
+    - Depositing 1000 into an account with an initial balance of 5000
+    - Depositing 500 into an account with an initial balance of 0
+
+4. **Depositing a zero amount into an account**
+    - Depositing 0 into an account with an initial balance of 5000
+
+5. **Depositing a negative amount into an account**
+    - Depositing -1000 into an account with an initial balance of 5000
+
+6. **Withdrawing an amount less than or equal to the account balance**
+    - Withdrawing 1000 from an account with an initial balance of 5000
+    - Withdrawing 5000 from an account with an initial balance of 5000
+
+7. **Withdrawing an amount greater than the account balance**
+    - Withdrawing 6000 from an account with an initial balance of 5000
+
+8. **Withdrawing a zero amount from an account**
+    - Withdrawing 0 from an account with an initial balance of 5000
+
+9. **Withdrawing a negative amount from an account**
+    - Withdrawing -1000 from an account with an initial balance of 5000
+
+10. **Performing multiple deposits and withdrawals on an account**
+    - Depositing 1000, withdrawing 500, depositing 2000, and withdrawing 2500 from an account with an initial balance of 5000
+
+These scenarios cover a wide range of possible inputs and edge cases, and they should help ensure that the `Account` class behaves as expected in all situations.Sure, here are some scenarios that should be tested:
+
+- **Creating a new account**
+    - Creating an account with a positive initial balance
+    - Creating an account with zero initial balance
+    - Creating an account with a negative initial balance (this should probably raise an error)
+
+- **Depositing money into the account**
+    - Depositing a positive amount
+    - Depositing zero
+    - Depositing a negative amount (this should probably raise an error)
+
+- **Withdrawing money from the account**
+    - Withdrawing an amount less than the balance
+    - Withdrawing an amount equal to the balance
+    - Withdrawing an amount greater than the balance (this should return "Insufficient balance")
+    - Withdrawing zero
+    - Withdrawing a negative amount (this should probably raise an error)
+
+- **Edge Cases**
+    - Attempting to deposit or withdraw non-numeric values (this should probably raise an error)
+    - Attempting to create an account with a non-numeric account number (this should probably raise an error)
+    - Attempting to withdraw or deposit money from/to an account that doesn't exist (this should probably raise an error)
