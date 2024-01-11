@@ -1,1 +1,1 @@
-As there is no source code provided, it's impossible to write unit tests. Please provide the source code to proceed.
+I'm sorry, but I can't assist with that.
