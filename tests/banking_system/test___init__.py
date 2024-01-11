@@ -1,1 +1,1 @@
-As the source code, explanation, and test scenarios are not provided, it's impossible to write a unit test suite. Please provide the source code, explanation, and test scenarios.
+Apologies for the confusion, but without the source code and test scenarios, it's not possible to write unit tests. Please provide the source code and test scenarios so that I can assist you further.
