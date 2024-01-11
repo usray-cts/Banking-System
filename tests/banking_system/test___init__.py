@@ -1,1 +1,1 @@
-I'm sorry, but as there is no source code provided, I cannot generate the unit test code. Please provide the source code for which you need the unit test code.
+As the source code, explanation, and test scenarios are not provided, it's impossible to write a unit test suite. Please provide the source code, explanation, and test scenarios.
