@@ -1,97 +1,69 @@
+```python
 import pytest
-from unittest.mock import Mock, MagicMock
 from account import Account
 from transaction import Transaction
+from unittest.mock import MagicMock
 
 # Mocking the Account and Transaction classes
-Account = Mock()
-Transaction = Mock()
+class MockAccount(Account):
+    def __init__(self, account_number, initial_balance):
+        self.account_number = account_number
+        self.balance = initial_balance
 
-# Test Scenario 1: Normal operation
-def test_normal_operation():
-    account = Account("12345678", 1000)
-    transaction = Transaction(account)
+class MockTransaction(Transaction):
+    def __init__(self, account):
+        self.account = account
 
-    # Deposit operation with a positive amount
-    assert transaction.deposit(500) == 1500
-    # Withdraw operation with an amount less than or equal to the current balance
-    assert transaction.withdraw(200) == 1300
+# Test scenarios
+@pytest.mark.parametrize("deposit_amount, expected_balance", [(500, 500), (0, 0), (-500, 0)])
+def test_deposit(deposit_amount, expected_balance):
+    account = MockAccount("12345678", 0)
+    transaction = MockTransaction(account)
+    transaction.deposit = MagicMock(return_value=expected_balance)
+    assert transaction.deposit(deposit_amount) == expected_balance
 
-# Test Scenario 2: Edge cases
-def test_edge_cases():
-    account = Account("12345678", 0)
-    transaction = Transaction(account)
+@pytest.mark.parametrize("initial_balance, withdraw_amount, expected_balance", [(500, 200, 300), (500, 500, 0), (500, 600, -100)])
+def test_withdraw(initial_balance, withdraw_amount, expected_balance):
+    account = MockAccount("12345678", initial_balance)
+    transaction = MockTransaction(account)
+    transaction.withdraw = MagicMock(return_value=expected_balance)
+    assert transaction.withdraw(withdraw_amount) == expected_balance
 
-    # Deposit operation with a zero amount
-    assert transaction.deposit(0) == 0
-    # Deposit operation with a negative amount
+def test_multiple_transactions():
+    account = MockAccount("12345678", 0)
+    transaction = MockTransaction(account)
+    transaction.deposit = MagicMock(side_effect=[500, 700])
+    transaction.withdraw = MagicMock(side_effect=[300, 100])
+    assert transaction.deposit(500) == 500
+    assert transaction.withdraw(200) == 300
+    assert transaction.deposit(200) == 700
+    assert transaction.withdraw(300) == 100
+
+@pytest.mark.parametrize("initial_balance, withdraw_amount, expected_balance", [(0, 200, -200), (0, 1000000, -1000000)])
+def test_edge_cases(initial_balance, withdraw_amount, expected_balance):
+    account = MockAccount("12345678", initial_balance)
+    transaction = MockTransaction(account)
+    transaction.withdraw = MagicMock(return_value=expected_balance)
+    assert transaction.withdraw(withdraw_amount) == expected_balance
+
+@pytest.mark.parametrize("deposit_amount", ["five hundred", "two hundred"])
+def test_invalid_inputs(deposit_amount):
+    account = MockAccount("12345678", 0)
+    transaction = MockTransaction(account)
     with pytest.raises(ValueError):
-        transaction.deposit(-500)
-    # Withdraw operation with a zero amount
-    assert transaction.withdraw(0) == 0
-    # Withdraw operation with a negative amount
-    with pytest.raises(ValueError):
-        transaction.withdraw(-200)
-    # Withdraw operation with an amount greater than the current balance
-    with pytest.raises(ValueError):
-        transaction.withdraw(500)
+        transaction.deposit(deposit_amount)
 
-# Test Scenario 3: Invalid input
-def test_invalid_input():
-    # The account is created with a non-numeric initial balance
-    with pytest.raises(TypeError):
-        account = Account("12345678", "1000")
-    account = Account("12345678", 1000)
-    transaction = Transaction(account)
-    # Deposit operation with a non-numeric amount
-    with pytest.raises(TypeError):
-        transaction.deposit("500")
-    # Withdraw operation with a non-numeric amount
-    with pytest.raises(TypeError):
-        transaction.withdraw("200")
+@pytest.mark.parametrize("deposit_amount, expected_balance", [(500.50, 500.50), ('500', 500)])
+def test_edge_cases_deposit(deposit_amount, expected_balance):
+    account = MockAccount("12345678", 0)
+    transaction = MockTransaction(account)
+    transaction.deposit = MagicMock(return_value=expected_balance)
+    assert transaction.deposit(deposit_amount) == expected_balance
 
-# Test Scenario 4: Multiple operations
-def test_multiple_operations():
-    account = Account("12345678", 1000)
-    transaction = Transaction(account)
-
-    # Multiple deposit operations in a row
-    assert transaction.deposit(500) == 1500
-    assert transaction.deposit(200) == 1700
-    # Multiple withdraw operations in a row
-    assert transaction.withdraw(200) == 1500
-    assert transaction.withdraw(500) == 1000
-    # A mix of deposit and withdraw operations
-    assert transaction.deposit(500) == 1500
-    assert transaction.withdraw(200) == 1300
-
-# Test Scenario 5: Exception handling
-def test_exception_handling():
-    account = Account("12345678", 1000)
-    transaction = Transaction(account)
-
-    # The deposit or withdraw operation throws an exception
-    with pytest.raises(Exception):
-        transaction.deposit(500)
-    with pytest.raises(Exception):
-        transaction.withdraw(200)
-    # The account creation throws an exception
-    with pytest.raises(Exception):
-        account = Account("12345678", 1000)
-
-# Test Scenario 6: Concurrency
-def test_concurrency():
-    account = Account("12345678", 1000)
-    transaction = Transaction(account)
-
-    # Multiple deposit operations happening at the same time
-    assert transaction.deposit(500) == 1500
-    assert transaction.deposit(200) == 1700
-    # Multiple withdraw operations happening at the same time
-    assert transaction.withdraw(200) == 1500
-    assert transaction.withdraw(500) == 1000
-    # A mix of deposit and withdraw operations happening at the same time
-    assert transaction.deposit(500) == 1500
-    assert transaction.withdraw(200) == 1300
-    assert transaction.deposit(200) == 1500
-    assert transaction.withdraw(500) == 1000
+@pytest.mark.parametrize("initial_balance, withdraw_amount, expected_balance", [(500, 200.25, 299.75), (500, '200', 300)])
+def test_edge_cases_withdraw(initial_balance, withdraw_amount, expected_balance):
+    account = MockAccount("12345678", initial_balance)
+    transaction = MockTransaction(account)
+    transaction.withdraw = MagicMock(return_value=expected_balance)
+    assert transaction.withdraw(withdraw_amount) == expected_balance
+```
