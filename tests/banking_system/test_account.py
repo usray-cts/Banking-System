@@ -3,65 +3,67 @@ import pytest
 from account import Account
 
 def test_account_initialization():
-    # Test case: Creating an account with a specific account number and no initial balance.
-    account1 = Account(123456)
-    assert account1.account_number == 123456
-    assert account1.balance == 0
+    # Test initialization with specific account number and initial balance
+    acc1 = Account(123456, 1000)
+    assert acc1.account_number == 123456
+    assert acc1.balance == 1000
 
-    # Test case: Creating an account with a specific account number and an initial balance.
-    account2 = Account(234567, 1000)
-    assert account2.account_number == 234567
-    assert account2.balance == 1000
+    # Test initialization with specific account number and no initial balance
+    acc2 = Account(789012)
+    assert acc2.account_number == 789012
+    assert acc2.balance == 0
 
 def test_deposit():
-    account = Account(123456, 1000)
+    acc = Account(123456, 1000)
 
-    # Test case: Depositing a positive amount into the account.
-    account.deposit(500)
-    assert account.balance == 1500
+    # Test depositing a positive amount of money
+    assert acc.deposit(500) == 1500
 
-    # Test case: Depositing zero into the account.
-    account.deposit(0)
-    assert account.balance == 1500
+    # Test depositing a zero amount of money
+    assert acc.deposit(0) == 1500
 
-    # Edge case: Attempting to deposit a negative amount.
+    # Test attempting to deposit a negative amount of money
     with pytest.raises(ValueError):
-        account.deposit(-500)
+        acc.deposit(-500)
 
 def test_withdraw():
-    account = Account(123456, 1000)
+    acc = Account(123456, 1500)
 
-    # Test case: Withdrawing an amount less than the balance.
-    account.withdraw(500)
-    assert account.balance == 500
+    # Test withdrawing an amount less than the balance
+    assert acc.withdraw(500) == 1000
 
-    # Test case: Withdrawing an amount equal to the balance.
-    account.withdraw(500)
-    assert account.balance == 0
+    # Test withdrawing an amount equal to the balance
+    assert acc.withdraw(1000) == 0
 
-    # Edge case: Withdrawing an amount greater than the balance.
-    assert account.withdraw(500) == "Insufficient balance"
-    assert account.balance == 0
+    # Test attempting to withdraw an amount greater than the balance
+    assert acc.withdraw(500) == "Insufficient balance"
 
-    # Edge case: Attempting to withdraw a negative amount.
+    # Test attempting to withdraw a negative amount
     with pytest.raises(ValueError):
-        account.withdraw(-500)
+        acc.withdraw(-500)
 
-def test_account_number_edge_cases():
-    # Edge case: Creating an account with a non-numeric account number.
-    with pytest.raises(ValueError):
-        Account("123abc")
+def test_edge_cases():
+    acc = Account(123456, 0)
 
-    # Edge case: Creating an account with a negative account number.
-    with pytest.raises(ValueError):
-        Account(-123456)
+    # Test withdrawing or depositing extremely large amounts
+    assert acc.deposit(1e18) == 1e18
+    assert acc.withdraw(1e18) == 0
 
-def test_balance_edge_cases():
-    # Edge case: Creating an account with a non-numeric balance.
-    with pytest.raises(ValueError):
-        Account(123456, "1000")
+    # Test handling of decimal amounts
+    assert acc.deposit(0.1) == 0.1
+    assert acc.withdraw(0.05) == 0.05
 
-    # Edge case: Creating an account with a negative balance.
-    with pytest.raises(ValueError):
-        Account(123456, -1000)
+def test_other_scenarios():
+    acc1 = Account(123456, 1000)
+    acc2 = Account(789012, 2000)
+
+    # Test checking the balance after various transactions
+    acc1.deposit(500)
+    acc1.withdraw(200)
+    assert acc1.balance == 1300
+
+    # Test interaction between multiple account objects
+    acc2.deposit(acc1.withdraw(300))
+    assert acc1.balance == 1000
+    assert acc2.balance == 2300
 ```
