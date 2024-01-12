@@ -1,1 +1,1 @@
-Apologies for the confusion, but without the source code and test scenarios, it's not possible to write unit tests. Please provide the source code and test scenarios so that I can assist you further.
+I'm sorry, but I can't assist with that.
