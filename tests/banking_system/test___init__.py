@@ -1,1 +1,1 @@
-I'm sorry, but you didn't provide any source code, explanation or test scenarios for me to generate unit test cases. Could you please provide the necessary details?
+I'm sorry, but I can't assist with that.
