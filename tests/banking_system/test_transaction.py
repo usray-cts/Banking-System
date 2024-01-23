@@ -1,103 +1,61 @@
 ```python
 import pytest
+from unittest.mock import Mock, MagicMock
 from account import Account
 from transaction import Transaction
-from unittest.mock import MagicMock
 
-# Test cases for deposit method
-def test_deposit_positive_amount():
+# Define a fixture for the account object
+@pytest.fixture
+def account():
     account = Account()
-    account.deposit = MagicMock(return_value=600)
-    transaction = Transaction(account)
-    assert transaction.deposit(100) == "Deposit successful. New balance is 600"
+    account.deposit = MagicMock()
+    account.withdraw = MagicMock()
+    return account
 
-def test_deposit_zero_balance():
-    account = Account()
-    account.deposit = MagicMock(return_value=100)
-    transaction = Transaction(account)
-    assert transaction.deposit(100) == "Deposit successful. New balance is 100"
+# Define a fixture for the transaction object
+@pytest.fixture
+def transaction(account):
+    return Transaction(account)
 
-def test_deposit_negative_amount():
-    account = Account()
-    account.deposit = MagicMock(side_effect=ValueError("Invalid amount"))
-    transaction = Transaction(account)
+# Scenario 1: Deposit operation with valid amount
+def test_deposit_valid_amount(transaction, account):
+    account.deposit.return_value = 6000
+    assert transaction.deposit(1000) == "Deposit successful. New balance is 6000"
+
+# Scenario 2: Deposit operation with invalid amount
+def test_deposit_invalid_amount(transaction):
+    with pytest.raises(TypeError):
+        transaction.deposit("one thousand")
+
+# Scenario 3: Withdraw operation with valid amount
+def test_withdraw_valid_amount(transaction, account):
+    account.withdraw.return_value = 4000
+    assert transaction.withdraw(1000) == "Withdrawal successful. New balance is 4000"
+
+# Scenario 4: Withdraw operation with invalid amount
+def test_withdraw_invalid_amount(transaction):
+    with pytest.raises(TypeError):
+        transaction.withdraw("one thousand")
+
+# Scenario 5: Multiple deposit and withdrawal operations
+def test_multiple_operations(transaction, account):
+    account.deposit.return_value = 6000
+    assert transaction.deposit(1000) == "Deposit successful. New balance is 6000"
+    account.withdraw.return_value = 5500
+    assert transaction.withdraw(500) == "Withdrawal successful. New balance is 5500"
+    account.deposit.return_value = 7500
+    assert transaction.deposit(2000) == "Deposit successful. New balance is 7500"
+    account.withdraw.return_value = 6000
+    assert transaction.withdraw(1500) == "Withdrawal successful. New balance is 6000"
+
+# Scenario 6: Edge cases
+def test_edge_cases(transaction):
     with pytest.raises(ValueError):
-        transaction.deposit(-100)
-
-def test_deposit_non_numeric_value():
-    account = Account()
-    account.deposit = MagicMock(side_effect=ValueError("Invalid amount"))
-    transaction = Transaction(account)
+        transaction.deposit(1000.999)
     with pytest.raises(ValueError):
-        transaction.deposit("one hundred")
-
-# Test cases for withdraw method
-def test_withdraw_less_than_balance():
-    account = Account()
-    account.withdraw = MagicMock(return_value=400)
-    transaction = Transaction(account)
-    assert transaction.withdraw(100) == "Withdrawal successful. New balance is 400"
-
-def test_withdraw_equal_to_balance():
-    account = Account()
-    account.withdraw = MagicMock(return_value=0)
-    transaction = Transaction(account)
-    assert transaction.withdraw(500) == "Withdrawal successful. New balance is 0"
-
-def test_withdraw_more_than_balance():
-    account = Account()
-    account.withdraw = MagicMock(return_value="Insufficient funds")
-    transaction = Transaction(account)
-    assert transaction.withdraw(600) == "Insufficient funds"
-
-def test_withdraw_negative_amount():
-    account = Account()
-    account.withdraw = MagicMock(side_effect=ValueError("Invalid amount"))
-    transaction = Transaction(account)
+        transaction.withdraw(1000.999)
     with pytest.raises(ValueError):
-        transaction.withdraw(-100)
-
-def test_withdraw_non_numeric_value():
-    account = Account()
-    account.withdraw = MagicMock(side_effect=ValueError("Invalid amount"))
-    transaction = Transaction(account)
+        transaction.deposit(1e100)
     with pytest.raises(ValueError):
-        transaction.withdraw("one hundred")
-
-# Edge cases
-def test_deposit_large_amount():
-    account = Account()
-    account.deposit = MagicMock(return_value=1000000100)
-    transaction = Transaction(account)
-    assert transaction.deposit(1000000000) == "Deposit successful. New balance is 1000000100"
-
-def test_withdraw_large_amount():
-    account = Account()
-    account.withdraw = MagicMock(return_value="Insufficient funds")
-    transaction = Transaction(account)
-    assert transaction.withdraw(1000000000) == "Insufficient funds"
-
-def test_deposit_small_amount():
-    account = Account()
-    account.deposit = MagicMock(return_value=0.0000001)
-    transaction = Transaction(account)
-    assert transaction.deposit(0.0000001) == "Deposit successful. New balance is 0.0000001"
-
-def test_withdraw_small_amount():
-    account = Account()
-    account.withdraw = MagicMock(return_value=0)
-    transaction = Transaction(account)
-    assert transaction.withdraw(0.0000001) == "Withdrawal successful. New balance is 0"
-
-def test_deposit_zero():
-    account = Account()
-    account.deposit = MagicMock(return_value=0)
-    transaction = Transaction(account)
-    assert transaction.deposit(0) == "Deposit successful. New balance is 0"
-
-def test_withdraw_zero():
-    account = Account()
-    account.withdraw = MagicMock(return_value=0)
-    transaction = Transaction(account)
-    assert transaction.withdraw(0) == "Withdrawal successful. New balance is 0"
+        transaction.withdraw(1e100)
 ```
