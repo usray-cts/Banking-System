@@ -2,75 +2,66 @@
 import pytest
 from account import Account
 
-# Unit tests for the Account class
-
+# Step1: Test initialization of the account
 def test_account_initialization():
-    # Test initializing an account with only an account number
-    account = Account('12345678')
-    assert account.account_number == '12345678'
-    assert account.balance == 0
-
-    # Test initializing an account with an account number and a balance
-    account = Account('12345678', 1000)
-    assert account.account_number == '12345678'
+    account = Account('123456', 1000)
+    assert account.account_number == '123456'
     assert account.balance == 1000
 
+    account = Account('123456')
+    assert account.balance == 0
+
+# Step2: Test deposit method
 def test_deposit():
-    # Test depositing a positive amount of money
-    account = Account('12345678')
+    account = Account('123456', 1000)
     account.deposit(500)
-    assert account.balance == 500
+    assert account.balance == 1500
 
-    # Test depositing a zero amount of money
     account.deposit(0)
-    assert account.balance == 500
+    assert account.balance == 1500
 
-    # Test depositing a negative amount of money
     with pytest.raises(ValueError):
         account.deposit(-500)
 
-def test_withdraw():
-    # Test withdrawing an amount of money that is less than the balance
-    account = Account('12345678', 1000)
+# Step3: Test withdraw method with sufficient balance
+def test_withdraw_sufficient_balance():
+    account = Account('123456', 1000)
     account.withdraw(500)
     assert account.balance == 500
 
-    # Test withdrawing an amount of money that is equal to the balance
     account.withdraw(500)
     assert account.balance == 0
 
-    # Test withdrawing an amount of money that is greater than the balance
+# Step4: Test withdraw method with insufficient balance
+def test_withdraw_insufficient_balance():
+    account = Account('123456', 500)
+    result = account.withdraw(1000)
+    assert result == "Insufficient balance"
+    assert account.balance == 500
+
     with pytest.raises(ValueError):
-        account.withdraw(1500)
+        account.withdraw(-500)
 
-def test_balance_check():
-    # Test checking the balance when it is positive
-    account = Account('12345678', 1000)
-    assert account.balance == 1000
+# Step5: Test edge cases
+def test_edge_cases():
+    account = Account('123456', 1000)
+    account.deposit(1.5)
+    assert account.balance == 1001.5
 
-    # Test checking the balance when it is zero
-    account = Account('12345678')
-    assert account.balance == 0
+    result = account.withdraw(1002.5)
+    assert result == "Insufficient balance"
+    assert account.balance == 1001.5
 
-    # Test checking the balance when it is negative
-    with pytest.raises(ValueError):
-        account = Account('12345678', -500)
+# Step6: Test function's behavior with different data types
+def test_different_data_types():
+    account = Account('123456', 1000)
 
-# Edge Cases
-def test_non_numeric_initialization():
-    # Test initializing an account with a non-numeric account number
-    with pytest.raises(ValueError):
-        account = Account('abc123')
+    with pytest.raises(TypeError):
+        account.deposit("500")
 
-def test_non_numeric_deposit():
-    # Test depositing a non-numeric amount of money
-    account = Account('12345678')
-    with pytest.raises(ValueError):
-        account.deposit('500')
+    with pytest.raises(TypeError):
+        account.withdraw("500")
 
-def test_non_numeric_withdraw():
-    # Test withdrawing a non-numeric amount of money
-    account = Account('12345678', 1000)
-    with pytest.raises(ValueError):
-        account.withdraw('500')
+    with pytest.raises(TypeError):
+        Account('123456', "1000")
 ```
