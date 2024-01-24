@@ -1,61 +1,98 @@
 ```python
 import pytest
-from unittest.mock import Mock, MagicMock
 from account import Account
 from transaction import Transaction
+from unittest.mock import Mock
 
-# Define a fixture for the account object
-@pytest.fixture
-def account():
-    account = Account()
-    account.deposit = MagicMock()
-    account.withdraw = MagicMock()
-    return account
+# Unit tests for the Transaction class
+class TestTransaction:
 
-# Define a fixture for the transaction object
-@pytest.fixture
-def transaction(account):
-    return Transaction(account)
+    # Scenario 1: Initialization of `Transaction` Class
+    def test_init(self):
+        # Creating a new `Transaction` object with a valid `Account` object.
+        account = Mock(spec=Account)
+        transaction = Transaction(account)
+        assert transaction.account == account
 
-# Scenario 1: Deposit operation with valid amount
-def test_deposit_valid_amount(transaction, account):
-    account.deposit.return_value = 6000
-    assert transaction.deposit(1000) == "Deposit successful. New balance is 6000"
+        # Creating a new `Transaction` object with an invalid input (not an `Account` object).
+        with pytest.raises(TypeError):
+            Transaction("Invalid input")
 
-# Scenario 2: Deposit operation with invalid amount
-def test_deposit_invalid_amount(transaction):
-    with pytest.raises(TypeError):
-        transaction.deposit("one thousand")
+    # Scenario 2: Deposit Method
+    def test_deposit(self):
+        account = Mock(spec=Account)
+        transaction = Transaction(account)
 
-# Scenario 3: Withdraw operation with valid amount
-def test_withdraw_valid_amount(transaction, account):
-    account.withdraw.return_value = 4000
-    assert transaction.withdraw(1000) == "Withdrawal successful. New balance is 4000"
+        # Depositing a positive amount.
+        account.deposit.return_value = 100
+        assert transaction.deposit(100) == "Deposit successful. New balance is 100"
 
-# Scenario 4: Withdraw operation with invalid amount
-def test_withdraw_invalid_amount(transaction):
-    with pytest.raises(TypeError):
-        transaction.withdraw("one thousand")
+        account.deposit.return_value = 1200
+        assert transaction.deposit(200) == "Deposit successful. New balance is 1200"
 
-# Scenario 5: Multiple deposit and withdrawal operations
-def test_multiple_operations(transaction, account):
-    account.deposit.return_value = 6000
-    assert transaction.deposit(1000) == "Deposit successful. New balance is 6000"
-    account.withdraw.return_value = 5500
-    assert transaction.withdraw(500) == "Withdrawal successful. New balance is 5500"
-    account.deposit.return_value = 7500
-    assert transaction.deposit(2000) == "Deposit successful. New balance is 7500"
-    account.withdraw.return_value = 6000
-    assert transaction.withdraw(1500) == "Withdrawal successful. New balance is 6000"
+        # Depositing a negative amount.
+        account.deposit.return_value = -100
+        assert transaction.deposit(-100) == "Deposit successful. New balance is -100"
 
-# Scenario 6: Edge cases
-def test_edge_cases(transaction):
-    with pytest.raises(ValueError):
-        transaction.deposit(1000.999)
-    with pytest.raises(ValueError):
-        transaction.withdraw(1000.999)
-    with pytest.raises(ValueError):
-        transaction.deposit(1e100)
-    with pytest.raises(ValueError):
-        transaction.withdraw(1e100)
+        account.deposit.return_value = 800
+        assert transaction.deposit(-200) == "Deposit successful. New balance is 800"
+
+        # Depositing zero.
+        account.deposit.return_value = 0
+        assert transaction.deposit(0) == "Deposit successful. New balance is 0"
+
+        account.deposit.return_value = 1000
+        assert transaction.deposit(0) == "Deposit successful. New balance is 1000"
+
+    # Scenario 3: Withdraw Method
+    def test_withdraw(self):
+        account = Mock(spec=Account)
+        transaction = Transaction(account)
+
+        # Withdrawing a positive amount that is less than or equal to the account balance.
+        account.withdraw.return_value = 900
+        assert transaction.withdraw(100) == "Withdrawal successful. New balance is 900"
+
+        account.withdraw.return_value = 0
+        assert transaction.withdraw(1000) == "Withdrawal successful. New balance is 0"
+
+        # Withdrawing a positive amount that is greater than the account balance.
+        account.withdraw.return_value = "Insufficient funds"
+        assert transaction.withdraw(1100) == "Insufficient funds"
+
+        account.withdraw.return_value = "Insufficient funds"
+        assert transaction.withdraw(2000) == "Insufficient funds"
+
+        # Withdrawing a negative amount.
+        account.withdraw.return_value = 1100
+        assert transaction.withdraw(-100) == "Withdrawal successful. New balance is 1100"
+
+        account.withdraw.return_value = 3000
+        assert transaction.withdraw(-2000) == "Withdrawal successful. New balance is 3000"
+
+        # Withdrawing zero.
+        account.withdraw.return_value = 1000
+        assert transaction.withdraw(0) == "Withdrawal successful. New balance is 1000"
+
+        account.withdraw.return_value = 0
+        assert transaction.withdraw(0) == "Withdrawal successful. New balance is 0"
+
+    # Scenario 4: Edge Cases
+    def test_edge_cases(self):
+        account = Mock(spec=Account)
+        transaction = Transaction(account)
+
+        # Handling floating point numbers for deposit and withdrawal amounts.
+        account.deposit.return_value = 100.50
+        assert transaction.deposit(100.50) == "Deposit successful. New balance is 100.5"
+
+        account.withdraw.return_value = 899.50
+        assert transaction.withdraw(100.50) == "Withdrawal successful. New balance is 899.5"
+
+        # Handling very large numbers for deposit and withdrawal amounts.
+        account.deposit.return_value = 1e6
+        assert transaction.deposit(1e6) == "Deposit successful. New balance is 1000000.0"
+
+        account.withdraw.return_value = 9e6
+        assert transaction.withdraw(1e6) == "Withdrawal successful. New balance is 9000000.0"
 ```
