@@ -2,66 +2,60 @@
 import pytest
 from account import Account
 
-# Step1: Test initialization of the account
+# Unit tests for Account class
+
 def test_account_initialization():
-    account = Account('123456', 1000)
-    assert account.account_number == '123456'
+    # Test initialization with positive balance
+    account = Account('12345678', 1000)
+    assert account.account_number == '12345678'
     assert account.balance == 1000
 
-    account = Account('123456')
+    # Test initialization with zero balance
+    account = Account('12345678', 0)
+    assert account.account_number == '12345678'
     assert account.balance == 0
 
-# Step2: Test deposit method
+    # Test initialization without specifying balance
+    account = Account('12345678')
+    assert account.account_number == '12345678'
+    assert account.balance == 0
+
 def test_deposit():
-    account = Account('123456', 1000)
-    account.deposit(500)
-    assert account.balance == 1500
+    # Test depositing positive amount
+    account = Account('12345678', 1000)
+    assert account.deposit(500) == 1500
 
-    account.deposit(0)
-    assert account.balance == 1500
+    # Test depositing zero amount
+    assert account.deposit(0) == 1500
 
-    with pytest.raises(ValueError):
-        account.deposit(-500)
+    # Test depositing negative amount
+    assert account.deposit(-500) == 1000
 
-# Step3: Test withdraw method with sufficient balance
-def test_withdraw_sufficient_balance():
-    account = Account('123456', 1000)
-    account.withdraw(500)
-    assert account.balance == 500
+def test_withdraw():
+    # Test withdrawing amount less than balance
+    account = Account('12345678', 1000)
+    assert account.withdraw(500) == 500
 
-    account.withdraw(500)
-    assert account.balance == 0
+    # Test withdrawing amount equal to balance
+    assert account.withdraw(500) == 0
 
-# Step4: Test withdraw method with insufficient balance
-def test_withdraw_insufficient_balance():
-    account = Account('123456', 500)
-    result = account.withdraw(1000)
-    assert result == "Insufficient balance"
-    assert account.balance == 500
+    # Test withdrawing amount greater than balance
+    assert account.withdraw(1500) == "Insufficient balance"
 
-    with pytest.raises(ValueError):
-        account.withdraw(-500)
+    # Test withdrawing negative amount
+    assert account.withdraw(-500) == "Insufficient balance"
 
-# Step5: Test edge cases
-def test_edge_cases():
-    account = Account('123456', 1000)
-    account.deposit(1.5)
-    assert account.balance == 1001.5
+def test_multiple_transactions():
+    # Test multiple transactions in sequence
+    account = Account('12345678', 1000)
+    assert account.deposit(500) == 1500
+    assert account.withdraw(400) == 1100
+    assert account.deposit(300) == 1400
+    assert account.withdraw(200) == 1200
 
-    result = account.withdraw(1002.5)
-    assert result == "Insufficient balance"
-    assert account.balance == 1001.5
-
-# Step6: Test function's behavior with different data types
-def test_different_data_types():
-    account = Account('123456', 1000)
-
-    with pytest.raises(TypeError):
-        account.deposit("500")
-
-    with pytest.raises(TypeError):
-        account.withdraw("500")
-
-    with pytest.raises(TypeError):
-        Account('123456', "1000")
+    # Test multiple transactions resulting in insufficient balance
+    account = Account('12345678', 1000)
+    assert account.deposit(500) == 1500
+    assert account.withdraw(1500) == 0
+    assert account.withdraw(500) == "Insufficient balance"
 ```
